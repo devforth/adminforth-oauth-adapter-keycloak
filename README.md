@@ -1,1 +1,1 @@
-# adminforth-keycloak-oauth-adapter
+# adminforth-oauth-adapter-keycloak
