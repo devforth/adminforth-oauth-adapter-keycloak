@@ -1,6 +1,16 @@
 import type { OAuth2Adapter } from "adminforth";
-import { jwtDecode } from "jwt-decode";
 
+type OAuth2UserInfoLocal = {
+  email: string;
+  provider?: string;
+  subject?: string;
+  phone?: string;
+  meta?: Record<string, any>;
+  fullName?: string;
+  profilePictureUrl?: string | null;
+  externalUserId?: string | number | null;
+};
+import { jwtDecode } from "jwt-decode";
 export default class AdminForthAdapterKeycloakOauth2 implements OAuth2Adapter {
     private clientID: string;
     private clientSecret: string;
@@ -64,7 +74,7 @@ export default class AdminForthAdapterKeycloakOauth2 implements OAuth2Adapter {
       return `${this.keycloakUrl}/realms/${this.realm}/protocol/openid-connect/auth?${params.toString()}`;
     }
   
-    async getTokenFromCode(code: string, redirect_uri: string): Promise<{ email: string, fullName?: string, profilePictureUrl?: string }> {
+    async getTokenFromCode(code: string, redirect_uri: string): Promise<OAuth2UserInfoLocal> {
       const tokenResponse = await fetch(`${this.keycloakUrl}/realms/${this.realm}/protocol/openid-connect/token`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -88,7 +98,13 @@ export default class AdminForthAdapterKeycloakOauth2 implements OAuth2Adapter {
         try {
           const decodedToken: any = jwtDecode(tokenData.access_token);
           if (decodedToken.email) {
-            return { email: decodedToken.email };
+            return {
+              provider: this.constructor.name,
+              subject: decodedToken.sub,
+              email: decodedToken.email,
+              fullName: decodedToken.name,
+              profilePictureUrl: decodedToken.picture,
+            };
           }
         } catch (error) {
           console.error("Error decoding token:", error);
@@ -106,7 +122,9 @@ export default class AdminForthAdapterKeycloakOauth2 implements OAuth2Adapter {
         throw new Error("Email not found in user info");
       }
 
-      return { 
+      return {
+        provider: this.constructor.name, 
+        subject: userInfo.sub,
         email: userInfo.email,
         fullName: userInfo.name,
         profilePictureUrl: userInfo.picture,
