@@ -1,5 +1,5 @@
 {
-  "name": "@adminforth/keycloak-oauth-adapter",
+  "name": "@adminforth/oauth-adapter-keycloak",
   "version": "1.0.13",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -36,7 +36,7 @@
       [
         "semantic-release-slack-bot",
         {
-          "packageName": "@adminforth/keycloak-oauth-adapter",
+          "packageName": "@adminforth/oauth-adapter-keycloak",
           "notifyOnSuccess": true,
           "notifyOnFail": true,
           "slackIcon": ":package:",
